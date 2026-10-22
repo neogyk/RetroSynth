@@ -16,12 +16,17 @@ Re-checking Claude's 1 step(s) without the LLM
     kcal/mol  Tc=20775 K
  833.5s  Route is VALID
 
-Route valid=True
-  step 1: Nc1ccc(-c2ccc(N)cc2C(F)(F)F)c(C(F)(F)F)c1 + O=C(Cl)C1CCC(C(=O)Cl)CC1 -> *Nc1ccc(-c2ccc(NC(=O)C3CCC(C(*)=O)CC3)cc2C(F)(F)F)c(C(F)(F)F)c1  gate ok  dG=-7.6, dH=-7.7 kcal/mol  Tc=20775 K
+C(F)(F)F)c(C(F)(F)F)c1  gate ok  dG=-7.6, dH=-7.7 kcal/mol  Tc=20775 K
 
 Route valid=True
   step 1: Nc1ccc(-c2ccc(N)cc2C(F)(F)F)c(C(F)(F)F)c1 + O=C(Cl)C1CCC(C(=O)Cl)CC1 -> *Nc1ccc(-c2ccc(NC(=O)C3CCC(C(*)=O)CC3)cc2C(F)(F)F)c(C(F)(F)F)c1  gate ok  dG=-7.6, dH=-7.7 kcal/mol  Tc=20775 K
-Claude: The amidation reaction is thermodynamically favorable (ΔG = −7.6 kcal/mol, ΔH = −7.7 kcal/mol, ceiling temperature 20,775 K), providing robust driving force for polymer chain extension and high conversion. The cyclohexane-1,4-dicarbonyl spacer was selected to provide stiffness and three-dimensional bulk that inhibits crystalline packing, yielding processable thermoplastics. The biaryl-CF₃ motif imparts aromatic character, enhanced thermal stability (CF₃ groups increase decomposition temperature and chemical resistance), and reduces polymer density compared to fully aliphatic alternatives. The two-point amide attachment to the diamine ensures predictable, extended conjugation pathways beneficial for eventual mechanical and electrical properties of the polymer.
+
+Claude: The amidation reaction is thermodynamically favorable (ΔG = −7.6 kcal/mol, ΔH = −7.7 kcal/mol, ceiling temperature 20,775 K), providing robust driving force for polymer chain extension and high conversion.
+The cyclohexane-1,4-dicarbonyl spacer was selected to provide stiffness and three-dimensional bulk that inhibits crystalline packing, yielding processable thermoplastics.
+
+The biaryl-CF₃ motif imparts aromatic character, enhanced thermal stability (CF₃ groups increase decomposition temperature and chemical resistance), and reduces polymer density compared to fully aliphatic alternatives.
+
+The two-point amide attachment to the diamine ensures predictable, extended conjugation pathways beneficial for eventual mechanical and electrical properties of the polymer.
 
 ```
 
