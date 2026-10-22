@@ -5,10 +5,17 @@ Each agent section in config.ini sets `model_type`:
 - `subscription`: `model` is ignored and each call runs `claude -p <prompt>` with the CLI's own login
 """
 
+import logging
 import subprocess
+import warnings
 from types import SimpleNamespace
 
 import dspy
+
+# dspy 3.4 warns on every call to a BaseLM subclass and logs "module.forward ... discouraged".
+# The subscription LM uses that interface on purpose, so silence both here, where it is defined.
+warnings.filterwarnings("ignore", message="Implementing custom LMs", category=DeprecationWarning)
+logging.getLogger("dspy").setLevel(logging.ERROR)
 
 API = "api"
 SUBSCRIPTION = "subscription"

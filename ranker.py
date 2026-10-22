@@ -20,9 +20,9 @@ class RankedRoute:
 class RouteRanker(dspy.Module):
     """Agent 3: checks every route for chemical sanity and ranks them."""
 
-    def __init__(self, stock):
+    def __init__(self, stock=None):
         super().__init__()
-        self.stock = stock
+        self.stock = stock  # None: no stock check
 
     def forward(self, routes):
         ranked = [self._check(root) for root in routes]
@@ -40,9 +40,10 @@ class RouteRanker(dspy.Module):
             missing = element_counts(step.smiles) - supplied
             if missing:
                 issues.append(f"{step.smiles}: precursors lack {dict(missing)}")
-        for leaf in root.leaves():
-            if leaf.smiles not in self.stock:
-                issues.append(f"leaf not in stock: {leaf.smiles}")
+        if self.stock is not None:
+            for leaf in root.leaves():
+                if leaf.smiles not in self.stock:
+                    issues.append(f"leaf not in stock: {leaf.smiles}")
         return RankedRoute(
             root=root,
             score=route_score(root),

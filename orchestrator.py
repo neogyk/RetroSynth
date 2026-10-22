@@ -6,27 +6,30 @@ tools that wrap the validator (agent 5): the chemistry gate, then the energy cha
 and returns the path as reaction SMILES.
 
 Claude's answer is then re-checked without the LLM: every step must pass the gate and have every
-configured energy change below zero, and every starting material must be in stock. Claude can
-propose a route, but only the tools can make it valid.
+configured energy change below zero, and, when a stock list is given, every starting material must be in
+stock. Claude can propose a route, but only the tools can make it valid.
 
 While it runs, the CLI prints each step as it happens: Claude's thoughts, every tool call and its
 result, and the re-check of each reaction step. Pass --quiet to print only the result.
 
 Usage:
-    python orchestrator.py "[*]CC[*]" --stock stock.smi [--context TEXT] [--config config.ini] [--quiet]
+    python orchestrator.py "[*]CC[*]" [--stock stock.smi] [--context TEXT] [--config config.ini] [--quiet]
 """
 
 import argparse
 import os
 import shutil
 import sys
-import textwrap
 import time
 from collections import Counter
 from dataclasses import dataclass, field
 
 import dspy
 from dspy.utils.callback import BaseCallback
+from rich.console import Console
+from rich.panel import Panel
+from rich.table import Table
+from rich.text import Text
 
 from config import DEFAULT_CONFIG_PATH, Config, load_config
 from lm import make_lm
@@ -172,9 +175,10 @@ class RetroOrchestrator(dspy.Module):
         self.progress = progress
         self.validator = RouteValidator(self.config.validator)  # gate and energies; its LLM review is not used
         self.lm = make_lm(self.config.orchestrator.model, self.config.orchestrator.model_type, self.config.orchestrator.max_tokens)
+        tools = [self.validate_step] if stock is None else [self.validate_step, self.in_stock]
         self.agent = dspy.ReAct(
             PlanSynthesis,
-            tools=[self.validate_step, self.in_stock],
+            tools=tools,
             max_iters=self.config.orchestrator.max_iters,
         )
 
@@ -205,7 +209,8 @@ class RetroOrchestrator(dspy.Module):
                     issues.append(f"{s.product}: no energy ({s.note})")
                 elif any(v >= 0 for v in s.deltas.values()):
                     issues.append(f"{s.product}: not favourable: {format_deltas(s.deltas)}")
-            issues += [f"not in stock: {leaf.smiles}" for leaf in root.leaves() if leaf.smiles not in self.stock]
+            if self.stock is not None:
+                issues += [f"not in stock: {leaf.smiles}" for leaf in root.leaves() if leaf.smiles not in self.stock]
         valid = root is not None and not issues
         self._report("recheck_done", {"valid": valid, "issues": issues})
         return OrchestratorResult(valid=valid, rationale="", steps=checks, issues=issues, root=root)
@@ -259,63 +264,78 @@ class RetroOrchestrator(dspy.Module):
         return "\n".join(lines)
 
 
+def verdict_colour(result):
+    """Colour of a verifier result: green for a pass, red for a failure, blue for anything else."""
+    if result.startswith(("PASS", "in stock", "gate ok")):
+        return "green"
+    if "FAIL" in result or "NOT" in result:
+        return "red"
+    return "blue"
+
+
+def verifier_box(name, body, verdict):
+    """A box around one verifier result (the gate and energy check of a step, or a stock check)."""
+    return Panel(Text(body), title=Text(f"Verifier: {name}", style="bold"), title_align="left",
+                 border_style=verdict_colour(verdict))
+
+
 class ProgressPrinter:
-    """Prints orchestrator progress events as they arrive, one block per Claude iteration."""
+    """Prints orchestrator progress as it happens: Claude's thoughts in boxes, and each verifier result in a box
+    coloured by its verdict. Rich draws the boxes; colour is off when the stream is not a terminal."""
 
     def __init__(self, stream=None, color=None):
         self.stream = stream or sys.stdout
         if color is None:
             color = self.stream.isatty() and "NO_COLOR" not in os.environ
-        self.color = color
-        self.width = min(shutil.get_terminal_size((100, 20)).columns, 110)
+        width = min(shutil.get_terminal_size((100, 20)).columns, 110)
+        self.console = Console(file=self.stream, width=width, color_system="auto" if color else None,
+                               highlight=False)
         self.started = time.monotonic()
-
-    def _style(self, text, code):
-        return f"\033[{code}m{text}\033[0m" if self.color else text
-
-    def _print(self, text="", indent=""):
-        for line in text.splitlines() or [""]:
-            wrapped = textwrap.wrap(line, self.width - len(indent), subsequent_indent="  ") or [""]
-            for part in wrapped:
-                print(indent + part, file=self.stream, flush=True)
 
     def header(self, target, config):
         criteria = ", ".join(c.strip() for c in config.validator.criterion.split(","))
-        self._print(self._style(f"Target  {target}", "1"))
-        self._print(f"Claude  {config.orchestrator.model}  |  energies  {config.validator.backend} ({criteria})"
-                    f"  |  up to {config.orchestrator.max_iters} tool calls")
+        body = Text.assemble(("Target  ", "bold"), (target, "bold"), "\n",
+                             f"Claude  {config.orchestrator.model}  |  energies  {config.validator.backend} ({criteria})"
+                             f"  |  up to {config.orchestrator.max_iters} tool calls")
+        self.console.print(Panel(body, title=Text("Retrosynthesis", style="bold"), title_align="left",
+                                 border_style="blue"))
 
     def __call__(self, event, data):
-        clock = self._style(f"{time.monotonic() - self.started:6.1f}s", "2")
+        clock = Text(f"{time.monotonic() - self.started:6.1f}s", style="dim")
         if event == "thinking":
-            self._print()
-            label = self._style(f"[{data['iteration']}]", "1")
-            self._print(f"{clock}  {label} Claude is thinking...")
+            self.console.print()
+            self.console.rule(Text(f"[{data['iteration']}] Claude is thinking...", style="bold"), style="blue")
         elif event == "thought":
-            self._print(self._style("Thought: ", "36") + str(data["thought"]), indent="         ")
+            self.console.print(Panel(Text.assemble(("Thought: ", "bold cyan"), str(data["thought"])),
+                                     border_style="cyan"))
             if data["tool"] != "finish":
-                self._print(f"Next: {data['tool']}({format_args(data['args'])})", indent="         ")
+                self.console.print(Text.assemble(("Next: ", "bold"), f"{data['tool']}({format_args(data['args'])})"))
         elif event == "tool_start":
             if data["tool"] == "finish":
-                self._print(f"{clock}  Claude is done with the tools.")
+                self.console.print(Text.assemble(clock, ("  Claude is done with the tools.", "bold")))
             else:
                 busy = " (gate, then energies; this can take a while)" if data["tool"] == "validate_step" else ""
-                self._print(f"{clock}  -> {data['tool']}{busy}")
+                self.console.print(Text.assemble(clock, "  -> ", (data["tool"], "bold"), busy))
         elif event == "tool_end" and data["tool"] != "finish":
             result = str(data["result"])
-            code = "32" if result.startswith(("PASS", "in stock")) else ("31" if "FAIL" in result or "NOT" in result else "0")
-            self._print(f"{clock}  <- {self._style(result, code)}  ({data['seconds']:.1f} s)")
+            body = f"<- {result}  ({data['seconds']:.1f} s)"
+            self.console.print(verifier_box(data["tool"], body, result))
         elif event == "answering":
-            self._print()
-            self._print(f"{clock}  Claude is writing its answer...")
+            self.console.print()
+            self.console.print(Text.assemble(clock, ("  Claude is writing its answer...", "bold")))
         elif event == "recheck_start":
-            self._print()
-            self._print(self._style(f"Re-checking Claude's {data['n_steps']} step(s) without the LLM", "1"))
+            self.console.print()
+            self.console.rule(Text(f"Verifier: Re-checking Claude's {data['n_steps']} step(s) without the LLM",
+                                   style="bold"), style="green")
         elif event == "recheck_step":
-            self._print(format_step(data["index"], data["step"], self._style), indent="  ")
+            step = data["step"]
+            passed = step.gate_ok and bool(step.deltas) and all(v < 0 for v in step.deltas.values())
+            self.console.print(verifier_box(f"step {data['index']}", format_step(data["index"], step),
+                                            "PASS" if passed else "FAIL"))
         elif event == "recheck_done":
-            verdict = self._style("VALID", "32;1") if data["valid"] else self._style("NOT VALID", "31;1")
-            self._print(f"{clock}  Route is {verdict}")
+            label, colour = ("VALID", "green") if data["valid"] else ("NOT VALID", "red")
+            self.console.print(Panel(Text.assemble(clock, "  Route is ", (label, f"{colour} bold")),
+                                     border_style=colour))
 
 
 def format_args(args):
@@ -335,29 +355,51 @@ def format_step(index, step, style=lambda text, code: text):
 def main():
     parser = argparse.ArgumentParser(description="Claude orchestrator: monomers and validated reaction steps")
     parser.add_argument("target", help="target SMILES, or polymer PSMILES with [*] end points")
-    parser.add_argument("--stock", required=True, help="building blocks file, one SMILES per line")
+    parser.add_argument("--stock", help="building blocks file, one SMILES per line; omit to skip the stock check")
     parser.add_argument("--context", default="", help="extra instructions for Claude")
     parser.add_argument("--config", default=DEFAULT_CONFIG_PATH, help="settings file (INI)")
     parser.add_argument("--quiet", action="store_true", help="print only the result, not each step as it happens")
     args = parser.parse_args()
 
     config = load_config(args.config)
-    stock = load_stock(args.stock)
+    stock = load_stock(args.stock) if args.stock else None
     printer = None if args.quiet else ProgressPrinter()
     if printer:
         printer.header(args.target, config)
     result = RetroOrchestrator(stock, config, progress=printer)(args.target, context=args.context)
 
-    print()
-    print(f"Route valid={result.valid}")
-    for i, s in enumerate(result.steps, 1):
-        print("  " + format_step(i, s))
-    for issue in result.issues:
-        print(f"  ! {issue}")
-    print(f"Claude: {result.rationale}")
+    images = []
     if result.root is not None and result.root.children:
-        for path in RouteRenderer(config.renderer)(RouteRanker(stock)([result.root])):
-            print(f"Image: {path}")
+        images = list(RouteRenderer(config.renderer)(RouteRanker(stock)([result.root])))
+    print_result(Console(), result, images)
+
+
+def print_result(console, result, images):
+    """The final answer: the verdict, a table of steps with their gate and energies, the issues, Claude's
+    rationale, and the route images."""
+    console.print()
+    if result.valid:
+        console.print(Panel(Text("Route VALID", style="bold green"), border_style="green"))
+    else:
+        console.print(Panel(Text("Route NOT VALID", style="bold red"), border_style="red"))
+    if result.steps:
+        table = Table(title=Text("Steps", style="bold"), title_justify="left")
+        table.add_column("#", justify="right")
+        table.add_column("Reaction")
+        table.add_column("Gate")
+        table.add_column("Energies")
+        for i, s in enumerate(result.steps, 1):
+            gate = Text("ok", style="green") if s.gate_ok else Text(f"FAILED: {s.message}", style="red")
+            energy = format_deltas(s.deltas) or (f"no energy: {s.note}" if s.note else "")
+            table.add_row(str(i), Text(f"{' + '.join(s.reactants)} -> {s.product}"), gate, Text(energy))
+        console.print(table)
+    if result.issues:
+        console.print(Panel(Text("\n".join(f"• {issue}" for issue in result.issues)),
+                            title=Text("Issues", style="bold yellow"), title_align="left", border_style="yellow"))
+    console.print(Panel(Text(result.rationale or ""), title=Text("Claude", style="bold blue"),
+                        title_align="left", border_style="blue"))
+    for path in images:
+        console.print(Text.assemble("Image: ", (str(path), "underline")))
 
 
 if __name__ == "__main__":

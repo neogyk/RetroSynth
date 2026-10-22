@@ -22,6 +22,10 @@ Usage:
 
 import argparse
 
+from rich.console import Console
+from rich.table import Table
+from rich.text import Text
+
 from config import load_config
 from dataset import find_row
 from validator import RouteValidator, format_deltas
@@ -36,15 +40,24 @@ CANDIDATES = [
 
 
 def print_table(results):
-    print(f"{'candidate':<32}{'product':<14}{'dG':>10}{'Ea':>10}"
-          f"{'TS (A)':>9}{'ratio':>9}  valid")
+    table = Table(title="Possible reactions: HCl + propene", title_style="bold")
+    table.add_column("Candidate", style="bold")
+    table.add_column("Product")
+    table.add_column("ΔG", justify="right")
+    table.add_column("Ea", justify="right")
+    table.add_column("TS (Å)", justify="right")
+    table.add_column("Ratio", justify="right")
+    table.add_column("Valid", justify="center")
     for r in results:
-        note = " *" if r["at_end"] else ""
-        print(f"{r['name']:<32}{r['product']:<14}{r['dG']:>10.2f}{r['Ea']:>10.2f}"
-              f"{r['ts_distance']:>9.2f}{100 * r['fraction']:>8.1f}%  {r['valid']}{note}")
-    print("kcal/mol. ratio = Boltzmann fraction of product at 298 K from the barriers.")
+        ea = f"{r['Ea']:.2f}" + (" *" if r["at_end"] else "")
+        valid = Text("yes", style="green") if r["valid"] else Text("no", style="red")
+        table.add_row(Text(r["name"]), Text(r["product"]), f"{r['dG']:.2f}", ea,
+                      f"{r['ts_distance']:.2f}", f"{100 * r['fraction']:.1f}%", valid)
+    console = Console()
+    console.print(table)
+    console.print("ΔG and Ea in kcal/mol. Ratio = Boltzmann fraction of product at 298 K from the barriers.", style="dim")
     if any(r["at_end"] for r in results):
-        print("* The barrier maximum is at the end of the scan, so the true barrier may be higher.")
+        console.print("* The barrier maximum is at the end of the scan, so the true barrier may be higher.", style="yellow")
 
 
 def print_row(row, verdict, use_llm):
