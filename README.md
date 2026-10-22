@@ -21,6 +21,8 @@ Route valid=True
 ```
 
 
+![App Architecture](./route_01.png)
+
 #### Setup and configuration:
 ```ini
 # Retrosynthesis pipeline settings.
@@ -66,4 +68,6 @@ model_type = subscription
 max_tokens = 8000
 max_iters = 20
 ```
+
+
 
