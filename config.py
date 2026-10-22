@@ -18,6 +18,7 @@ class PredictorConfig:
     """Agent 1: LLM-backed single-step predictor."""
 
     model: str = "anthropic/claude-sonnet-5-5"  # any dspy model string, e.g. openai/gpt-4o
+    model_type: str = "api"  # "api" (dspy model above) or "subscription" (local claude CLI, model ignored)
     max_tokens: int = 4000
     k: int = 5  # disconnections returned per molecule
 
@@ -49,6 +50,7 @@ class ValidatorConfig:
     dxtb_method: str = "GFN2"  # used only when backend = dxtb: "GFN2" (needs libcint) or "GFN1" (no libcint)
     criterion: str = "dg, dh"  # every listed change must be < 0: "dg", "dh" (gfn2 or dxtb only), "de"
     model: str = "mistral/open-mistral-nemo"  # reads MISTRAL_API_KEY from .env
+    model_type: str = "api"  # "api" (dspy model above) or "subscription" (local claude CLI, model ignored)
     max_tokens: int = 4000
     max_iters: int = 6  # tool-calling steps before the agent must answer
     orca_path: str = "orca"  # binary name on PATH, or full path, used only when backend = orca
@@ -63,6 +65,7 @@ class OrchestratorConfig:
     Energies use the [validator] backend and criterion."""
 
     model: str = "anthropic/claude-sonnet-5-5"  # reads ANTHROPIC_API_KEY from .env
+    model_type: str = "api"  # "api" (dspy model above) or "subscription" (local claude CLI, model ignored)
     max_tokens: int = 8000
     max_iters: int = 20  # tool calls before the agent must answer
 

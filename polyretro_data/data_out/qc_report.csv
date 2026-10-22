@@ -1,0 +1,117 @@
+byproducts,file,monomers,polymer,qc,route_id,ru,scale,source
+{},,C=C,PE,ok,PE-1,[*]CC[*],industrial,curated
+{},,C=C,PE,ok,PE-2,[*]CC[*],industrial,curated
+{},,C=C,PE,ok,PE-3,[*]CC[*],industrial,curated
+{},,C=C,PE,ok,PE-4,[*]CC[*],industrial,curated
+{},,C=CC,PP,ok,PP-1,[*]CC([*])C,industrial,curated
+{},,C=CC,PP,ok,PP-2,[*]CC([*])C,industrial,curated
+{},,C=CC,PP,ok,PP-X,[*]CC([*])C,infeasible,curated
+{},,C=Cc1ccccc1,PS,ok,PS-1,[*]CC([*])c1ccccc1,industrial,curated
+{},,C=Cc1ccccc1,PS,ok,PS-2,[*]CC([*])c1ccccc1,industrial,curated
+{},,C=Cc1ccccc1,PS,ok,PS-3,[*]CC([*])c1ccccc1,industrial,curated
+{},,C=Cc1ccccc1,PS,ok,PS-4,[*]CC([*])c1ccccc1,industrial,curated
+{},,C=CCl,PVC,ok,PVC-1,[*]CC([*])Cl,industrial,curated
+{},,C=CCl,PVC,ok,PVC-2,[*]CC([*])Cl,industrial,curated
+{},,C=C(C)C(=O)OC,PMMA,ok,PMMA-1,[*]CC([*])(C)C(=O)OC,industrial,curated
+{},,C=C(C)C(=O)OC,PMMA,ok,PMMA-2,[*]CC([*])(C)C(=O)OC,industrial,curated
+{},,C=C(C)C(=O)OC,PMMA,ok,PMMA-3,[*]CC([*])(C)C(=O)OC,lab,curated
+{},,C=C(C)C(=O)OC,PMMA,ok,PMMA-4,[*]CC([*])(C)C(=O)OC,lab,curated
+{},,C=CC#N,PAN,ok,PAN-1,[*]CC([*])C#N,industrial,curated
+{},,C=CC#N,PAN,ok,PAN-2,[*]CC([*])C#N,industrial,curated
+{},,FC(F)=C(F)F,PTFE,ok,PTFE-1,[*]C(F)(F)C([*])(F)F,industrial,curated
+{},,FC(F)=C(F)F,PTFE,ok,PTFE-2,[*]C(F)(F)C([*])(F)F,industrial,curated
+{},,C=C(F)F,PVDF,ok,PVDF-1,[*]CC([*])(F)F,industrial,curated
+{},,C=C(F)F,PVDF,ok,PVDF-2,[*]CC([*])(F)F,industrial,curated
+{},,C=COC(C)=O,PVAc,ok,PVAc-1,[*]CC([*])OC(C)=O,industrial,curated
+{},,C=COC(C)=O,PVAc,ok,PVAc-2,[*]CC([*])OC(C)=O,industrial,curated
+"{""COC(C)=O"": 1}",,C=COC(C)=O,PVA,ok,PVA-1,[*]CC([*])O,industrial,curated
+{},,C=CO,PVA,ok,PVA-X,[*]CC([*])O,infeasible,curated
+{},,C=CC(N)=O,PAM,ok,PAM-1,[*]CC([*])C(N)=O,industrial,curated
+{},,C=CC(N)=O,PAM,ok,PAM-2,[*]CC([*])C(N)=O,industrial,curated
+{},,C=CC(=O)O,PAA,ok,PAA-1,[*]CC([*])C(=O)O,industrial,curated
+{},,C1OCOCO1,POM,ok,POM-1,[*]CO[*],industrial,curated
+{},,C=O,POM,ok,POM-2,[*]CO[*],industrial,curated
+{},,C1CO1,PEO,ok,PEO-1,[*]CCO[*],industrial,curated
+{},,C1CO1,PEO,ok,PEO-2,[*]CCO[*],industrial,curated
+"{""O"": 1}",,OCCO,PEO,ok,PEO-X,[*]CCO[*],infeasible,curated
+{},,CC1OC(=O)C(C)OC1=O,PLA,ok,PLA-1,[*]OC(C)C([*])=O,industrial,curated
+"{""O"": 1}",,CC(O)C(=O)O,PLA,ok,PLA-2,[*]OC(C)C([*])=O,pilot,curated
+{},,CC1OC(=O)C(C)OC1=O,PLA,ok,PLA-3,[*]OC(C)C([*])=O,lab,curated
+{},,O=C1CCCCCO1,PCL,ok,PCL-1,[*]OCCCCCC([*])=O,industrial,curated
+{},,O=C1CCCCCO1,PCL,ok,PCL-2,[*]OCCCCCC([*])=O,lab,curated
+"{""O"": 1}",,O=C(O)CCCCCO,PCL,ok,PCL-3,[*]OCCCCCC([*])=O,lab,curated
+{},,O=C1COC(=O)CO1,PGA,ok,PGA-1,[*]OCC([*])=O,industrial,curated
+"{""O"": 1}",,O=C(O)CO,PGA,ok,PGA-2,[*]OCC([*])=O,lab,curated
+"{""O"": 1}",,C[C@@H](O)CC(=O)O,PHB,ok,PHB-1,[*]OC(C)CC([*])=O,industrial,curated
+{},,CC1CC(=O)O1,PHB,ok,PHB-2,[*]OC(C)CC([*])=O,lab,curated
+"{""O"": 2}",,O=C(O)CCC(=O)O.OCCCCO,PBS,ok,PBS-1,[*]OCCCCOC(=O)CCC([*])=O,industrial,curated
+"{""CCO"": 2}",,CCOC(=O)CCC(=O)OCC.OCCCCO,PBS,ok,PBS-2,[*]OCCCCOC(=O)CCC([*])=O,lab,curated
+"{""O"": 2}",,O=C(O)c1ccc(C(=O)O)cc1.OCCO,PET,ok,PET-1,[*]OCCOC(=O)c1ccc(C([*])=O)cc1,industrial,curated
+"{""CO"": 2}",,COC(=O)c1ccc(C(=O)OC)cc1.OCCO,PET,ok,PET-2,[*]OCCOC(=O)c1ccc(C([*])=O)cc1,industrial,curated
+"{""O"": 2}",,O=C(O)c1ccc(C(=O)O)cc1.OCCCCO,PBT,ok,PBT-1,[*]OCCCCOC(=O)c1ccc(C([*])=O)cc1,industrial,curated
+"{""CO"": 2}",,COC(=O)c1ccc(C(=O)OC)cc1.OCCCCO,PBT,ok,PBT-2,[*]OCCCCOC(=O)c1ccc(C([*])=O)cc1,industrial,curated
+"{""O"": 2}",,O=C(O)c1ccc(C(=O)O)o1.OCCO,PEF,ok,PEF-1,[*]OCCOC(=O)c1ccc(C([*])=O)o1,pilot,curated
+"{""CO"": 2}",,COC(=O)c1ccc(C(=O)OC)o1.OCCO,PEF,ok,PEF-2,[*]OCCOC(=O)c1ccc(C([*])=O)o1,pilot,curated
+"{""Cl"": 2}",,CC(C)(c1ccc(O)cc1)c1ccc(O)cc1.O=C(Cl)Cl,PC,ok,PC-1,[*]Oc1ccc(C(C)(C)c2ccc(OC([*])=O)cc2)cc1,industrial,curated
+"{""Oc1ccccc1"": 2}",,CC(C)(c1ccc(O)cc1)c1ccc(O)cc1.O=C(Oc1ccccc1)Oc1ccccc1,PC,ok,PC-2,[*]Oc1ccc(C(C)(C)c2ccc(OC([*])=O)cc2)cc1,industrial,curated
+{},,O=C1CCCCCN1,PA6,ok,PA6-1,[*]NCCCCCC([*])=O,industrial,curated
+{},,O=C1CCCCCN1,PA6,ok,PA6-2,[*]NCCCCCC([*])=O,industrial,curated
+"{""O"": 1}",,NCCCCCC(=O)O,PA6,ok,PA6-3,[*]NCCCCCC([*])=O,lab,curated
+"{""O"": 2}",,NCCCCCCN.O=C(O)CCCCC(=O)O,PA66,ok,PA66-1,[*]NCCCCCCNC(=O)CCCCC([*])=O,industrial,curated
+"{""Cl"": 2}",,NCCCCCCN.O=C(Cl)CCCCC(=O)Cl,PA66,ok,PA66-2,[*]NCCCCCCNC(=O)CCCCC([*])=O,lab,curated
+"{""O"": 1}",,NCCCCCCCCCCC(=O)O,PA11,ok,PA11-1,[*]NCCCCCCCCCCC([*])=O,industrial,curated
+{},,O=C1CCCCCCCCCCCN1,PA12,ok,PA12-1,[*]NCCCCCCCCCCCC([*])=O,industrial,curated
+"{""O"": 1}",,NCCCCCCCCCCCC(=O)O,PA12,ok,PA12-2,[*]NCCCCCCCCCCCC([*])=O,industrial,curated
+"{""Cl"": 2}",,Nc1ccc(N)cc1.O=C(Cl)c1ccc(C(=O)Cl)cc1,PPTA,ok,PPTA-1,[*]Nc1ccc(NC(=O)c2ccc(C([*])=O)cc2)cc1,industrial,curated
+"{""O"": 2}",,Nc1ccc(N)cc1.O=C(O)c1ccc(C(=O)O)cc1,PPTA,ok,PPTA-2,[*]Nc1ccc(NC(=O)c2ccc(C([*])=O)cc2)cc1,lab,curated
+"{""O"": 2}",,O=c1oc(=O)c2cc3c(=O)oc(=O)c3cc12.Nc1ccc(Oc2ccc(N)cc2)cc1,PI,ok,PI-1,[*]c1ccc(Oc2ccc(-n3c(=O)c4cc5c(=O)n([*])c(=O)c5cc4c3=O)cc2)cc1,industrial,curated
+{},,O=C=Nc1ccc(Cc2ccc(N=C=O)cc2)cc1.OCCCCO,TPU,ok,TPU-1,[*]OCCCCOC(=O)Nc1ccc(Cc2ccc(NC([*])=O)cc2)cc1,industrial,curated
+"{""F"": 2}",,Oc1ccc(O)cc1.O=C(c1ccc(F)cc1)c1ccc(F)cc1,PEEK,ok,PEEK-1,[*]Oc1ccc(Oc2ccc(C(=O)c3ccc([*])cc3)cc2)cc1,industrial,curated
+"{""F"": 1}",,O=C(c1ccc(O)cc1)c1ccc(F)cc1,PEK,ok,PEK-1,[*]Oc1ccc(C(=O)c2ccc([*])cc2)cc1,industrial,curated
+"{""Cl"": 1}",,O=C(Cl)c1ccc(Oc2ccccc2)cc1,PEK,ok,PEK-2,[*]Oc1ccc(C(=O)c2ccc([*])cc2)cc1,industrial,curated
+"{""Cl"": 2}",,CC(C)(c1ccc(O)cc1)c1ccc(O)cc1.O=S(=O)(c1ccc(Cl)cc1)c1ccc(Cl)cc1,PSU,ok,PSU-1,[*]Oc1ccc(C(C)(C)c2ccc(Oc3ccc(S(=O)(=O)c4ccc([*])cc4)cc3)cc2)cc1,industrial,curated
+"{""[Na][Cl]"": 2}",,Clc1ccc(Cl)cc1.[Na][S][Na],PPS,ok,PPS-1,[*]Sc1ccc([*])cc1,industrial,curated
+"{""O"": 1}",,Cc1cccc(C)c1O,PPO,ok,PPO-1,[*]Oc1c(C)cc([*])cc1C,industrial,curated
+"{""O"": 2}",,Cc1cccc(C)c1O,PPO,ok,PPO-2,[*]Oc1c(C)cc([*])cc1C,lab,curated
+"{""O"": 1}",,Nc1ccccc1,PANI,ok,PANI-1,[*]Nc1ccc([*])cc1,industrial,curated
+"{""O"": 2}",,Nc1ccccc1,PANI,ok,PANI-2,[*]Nc1ccc([*])cc1,lab,curated
+"{""Cl"": 2}",,C[Si](C)(Cl)Cl,PDMS,ok,PDMS-1,[*]O[Si]([*])(C)C,industrial,curated
+{},,C[Si]1(C)O[Si](C)(C)O[Si](C)(C)O[Si](C)(C)O1,PDMS,ok,PDMS-2,[*]O[Si]([*])(C)C,industrial,curated
+{},,C[Si]1(C)O[Si](C)(C)O[Si](C)(C)O1,PDMS,ok,PDMS-3,[*]O[Si]([*])(C)C,lab,curated
+{},,C=CC(=C)C,IR,ok,IR-1,[*]CC=C(C)C[*],industrial,curated
+{},,C=CC(=C)C,IR,ok,IR-2,[*]CC=C(C)C[*],industrial,curated
+"{""O=P(O)(O)OP(=O)(O)O"": 1}",,C=C(C)CCOP(=O)(O)OP(=O)(O)O,IR,ok,IR-3,[*]CC=C(C)C[*],industrial,curated
+{},,C=CC=C,BR,ok,BR-1,[*]CC=CC[*],industrial,curated
+{},,C=CC=C,BR,ok,BR-2,[*]CC=CC[*],industrial,curated
+{},,C=CC=C,BR,ok,BR-3,[*]CC=CC[*],industrial,curated
+{},,C=CC(=C)Cl,CR,ok,CR-1,[*]CC=C(Cl)C[*],industrial,curated
+{},,C1=CC2CCC1C2,PNB,ok,PNB-1,[*]C=CC1CCC([*])C1,industrial,curated
+{},,C1=CCCCCCC1,TOR,ok,TOR-1,[*]C=CCCCCCC[*],industrial,curated
+"{""O"": 1.0}",train_condensation.csv,OCCO,P070013,ok,P070013#0,[*]CCO[*],literature,polyretro
+"{""O"": 1.0}",train_condensation.csv,Cc1ccc(OCC(O)CO)cc1,P070034,ok,P070034#1,[*]CC(COc1ccc(C)cc1)O[*],literature,polyretro
+"{""O"": 1.0}",train_condensation.csv,O=C(O)c1ccc(Oc2ccccc2)cc1,P190003,ok,P190003#2,[*]Oc1ccc(C(=O)c2ccc([*])cc2)cc1,literature,polyretro
+"{""F"": 1.0}",train_condensation.csv,O=C(c1ccc(O)cc1)c1ccc(F)cc1,P190003,ok,P190003#3,[*]Oc1ccc(C(=O)c2ccc([*])cc2)cc1,literature,polyretro
+"{""Cl"": 2.0}",train_condensation.csv,CC(C)(c1ccc(O)cc1)c1ccc(O)cc1.O=C(c1cccc(S(=O)(=O)Cl)c1)c1cccc(S(=O)(=O)Cl)c1,P190004,ok,P190004#4,[*]OS(=O)(=O)c1cccc(C(=O)c2cccc(S(=O)(=O)Oc3ccc(C(C)(C)c4ccc([*])cc4)cc3)c2)c1,literature,polyretro
+"{""Cl"": 2.0}",train_condensation.csv,CC(C)(c1ccc(O)cc1)c1ccc(O)cc1.O=S(=O)(Cl)c1cccc(S(=O)(=O)Cl)c1,P200001,ok,P200001#5,[*]OS(=O)(=O)c1cccc(S(=O)(=O)Oc2ccc(C(C)(C)c3ccc([*])cc3)cc2)c1,literature,polyretro
+"{""Cl"": 1.0}",train_condensation.csv,O=S(=O)(Cl)c1ccc(O)cc1,P200011,ok,P200011#6,[*]OS(=O)(=O)c1ccc([*])cc1,literature,polyretro
+"{""Cl"": 1.0}",train_condensation.csv,O=S(=O)(Cl)c1ccc(Cc2ccccc2)cc1,P200018,ok,P200018#7,[*]c1ccc(Cc2ccc(S([*])(=O)=O)cc2)cc1,literature,polyretro
+"{""Cl"": 2.0}",train_condensation.csv,Oc1ccc(-c2ccc(O)cc2)cc1.O=S(=O)(Cl)c1ccc(-c2ccc(S(=O)(=O)Cl)cc2)cc1,P204529,ok,P204529#8,[*]OS(=O)(=O)c1ccc(-c2ccc(S(=O)(=O)Oc3ccc(-c4ccc([*])cc4)cc3)cc2)cc1,literature,polyretro
+null,train_condensation.csv,Nc1ccc(N)cc1,P210001,UNBALANCED residual=H4N2,P210001#9,[*]c1ccc([*])cc1,literature,polyretro
+"{""ClCl"": 1.0}",train_condensation.csv,Clc1ccc(Cl)cc1,P210001,ok,P210001#10,[*]c1ccc([*])cc1,literature,polyretro
+"{""BrBr"": 1.0}",train_condensation.csv,Brc1ccc(Br)cc1,P210001,ok,P210001#11,[*]c1ccc([*])cc1,literature,polyretro
+"{""Cl"": 1.0}",train_condensation.csv,ClCc1ccccc1,P210002,ok,P210002#12,[*]Cc1ccc([*])cc1,literature,polyretro
+"{""CC(=O)O"": 2.0}",train_condensation.csv,CC(=O)Oc1ccc(C(c2ccccc2)c2ccc(OC(C)=O)cc2)cc1.O=C(O)c1ccc(Oc2ccc(C(=O)O)cc2)cc1,P370049,ok,P370049#13,[*]Oc1ccc(C(c2ccccc2)c2ccc(OC(=O)c3ccc(Oc4ccc(C([*])=O)cc4)cc3)cc2)cc1,literature,polyretro
+"{""CC(=O)O"": 2.0}",train_condensation.csv,CC(=O)Oc1ccc(C(C)(c2ccccc2)c2ccc(OC(C)=O)cc2)cc1.O=C(O)c1ccc(Oc2ccc(C(=O)O)cc2)cc1,P370050,ok,P370050#14,[*]Oc1ccc(C(C)(c2ccccc2)c2ccc(OC(=O)c3ccc(Oc4ccc(C([*])=O)cc4)cc3)cc2)cc1,literature,polyretro
+{},train_addition.csv,CCCCCCCC=O,P370053,ok,P370053#0,[*]OC([*])CCCCCCC,literature,polyretro
+{},train_addition.csv,C=CC(=O)Oc1cccc(N(C)C)c1,P040208,ok,P040208#1,[*]CC([*])C(=O)Oc1cccc(N(C)C)c1,literature,polyretro
+{},train_addition.csv,CC(C)c1ccc(N=Nc2ccc(N(CCO)CCO)cc2)cc1.O=C=NCCCCCCN=C=O,P412196,ok,P412196#2,[*]CCN(CCOC(=O)NCCCCCCNC(=O)O[*])c1ccc(N=Nc2ccc(C(C)C)cc2)cc1,literature,polyretro
+{},train_addition.csv,C=CCC1CCCC1,P010024,ok,P010024#3,[*]CC([*])CC1CCCC1,literature,polyretro
+{},train_addition.csv,C=C(C)C(=O)OCCCCCCCCCCOc1ccc(N=Nc2ccc(OC)cc2)cc1,P342594,ok,P342594#4,[*]CC([*])(C)C(=O)OCCCCCCCCCCOc1ccc(N=Nc2ccc(OC)cc2)cc1,literature,polyretro
+{},train_addition.csv,C=C(CC(=O)OCCCCCCCCC)C(=O)OCCCCCCCCC,P340018,ok,P340018#5,[*]CC([*])(CC(=O)OCCCCCCCCC)C(=O)OCCCCCCCCC,literature,polyretro
+{},train_addition.csv,C=C(C(=O)O)C(=O)OCCCCCCCCCCCCCC,P340175,ok,P340175#6,[*]CC([*])(C(=O)O)C(=O)OCCCCCCCCCCCCCC,literature,polyretro
+null,train_addition.csv,NCCCCCN.O=C=NCCCCCN=C=O,P422037,UNBALANCED residual=C6H12N2O,P422037#7,[*]CCCCCNC(=O)N[*],literature,polyretro
+{},train_addition.csv,Nc1ccc(Cc2ccc(N)cc2)cc1.Cc1cc(C(c2cccnc2)c2cc(C)c(Oc3ccc(N4C(=O)C=CC4=O)cc3)c(C)c2)cc(C)c1Oc1ccc(N2C(=O)C=CC2=O)cc1,P433389,ok,P433389#8,[*]c1ccc(Oc2c(C)cc(C(c3cccnc3)c3cc(C)c(Oc4ccc(N5C(=O)CC(Nc6ccc(Cc7ccc(NC8CC(=O)N([*])C8=O)cc7)cc6)C5=O)cc4)c(C)c3)cc2C)cc1,literature,polyretro
+null,train_2k.csv,COc1cccc(C2Nc3ccc(C(C)=NNC(=O)CC4(C)OCCO4)cc3C3C=CCC32)c1OC,train_2k_row0,UNBALANCED residual=H-2,train_2k_row0#0,[*]CCC1C(C[*])c2cc(C(C)=NNC(=O)CC3(C)OCCO3)ccc2NC1c1cccc(OC)c1OC,literature,polyretro
+"{""Cl"": 2.0}",train_2k.csv,NCCCCCCCCCCN.O=C(Cl)CCCCCCCCCCCCCCCCCCCCC(=O)Cl,P100229,ok,P100229#1,[*]CCCCCCCCCCNC(=O)CCCCCCCCCCCCCCCCCCCCC(=O)N[*],literature,polyretro
+{},train_2k.csv,Fc1ccc(OP2(Oc3ccc(F)cc3)=NP(Oc3ccc(F)cc3)(Oc3ccc(F)cc3)=NP(Oc3ccc(F)cc3)(Oc3ccc(F)cc3)=N2)cc1,P180022,ok,P180022#2,[*]N=P([*])(Oc1ccc(F)cc1)Oc1ccc(F)cc1,literature,polyretro
+{},train_2k.csv,C=C(C)C(=O)OCCCCCCOc1ccc(N=Nc2ccc(C#N)cc2)cc1,P342117,ok,P342117#3,[*]CC([*])(C)C(=O)OCCCCCCOc1ccc(N=Nc2ccc(C#N)cc2)cc1,literature,polyretro

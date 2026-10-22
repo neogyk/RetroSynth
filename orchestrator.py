@@ -29,6 +29,7 @@ import dspy
 from dspy.utils.callback import BaseCallback
 
 from config import DEFAULT_CONFIG_PATH, Config, load_config
+from lm import make_lm
 from molecules import TreeNode, canonical, load_stock
 from ranker import RouteRanker
 from renderer import RouteRenderer
@@ -170,7 +171,7 @@ class RetroOrchestrator(dspy.Module):
         self.stock = stock
         self.progress = progress
         self.validator = RouteValidator(self.config.validator)  # gate and energies; its LLM review is not used
-        self.lm = dspy.LM(self.config.orchestrator.model, max_tokens=self.config.orchestrator.max_tokens)
+        self.lm = make_lm(self.config.orchestrator.model, self.config.orchestrator.model_type, self.config.orchestrator.max_tokens)
         self.agent = dspy.ReAct(
             PlanSynthesis,
             tools=[self.validate_step, self.in_stock],

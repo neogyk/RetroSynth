@@ -3,6 +3,7 @@
 import dspy
 
 from config import PredictorConfig
+from lm import make_lm
 from molecules import Disconnection, canonical
 
 
@@ -30,7 +31,7 @@ class SingleStepPredictor(dspy.Module):
         super().__init__()
         self.config = config or PredictorConfig()
         self.backend = backend  # optional callable: smiles -> [(reactant_smiles_list, prob), ...]
-        self.lm = dspy.LM(self.config.model, max_tokens=self.config.max_tokens)
+        self.lm = make_lm(self.config.model, self.config.model_type, self.config.max_tokens)
         self.llm = dspy.Predict(PredictPrecursors)
 
     def forward(self, smiles, context=""):

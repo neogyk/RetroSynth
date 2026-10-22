@@ -24,9 +24,12 @@ from rdkit import Chem
 from rdkit.Chem import AllChem
 
 from config import ValidatorConfig
+from dataset import row_reactants
 from dxtb_backend import DxtbError, DxtbRunner
 from gfn2 import Gfn2Error, Gfn2Runner
-from molecules import end_points
+from kinetics import boltzmann_fractions, combined_geometry, hydrogen_on, scan_barrier
+from lm import make_lm
+from molecules import TreeNode, canonical, end_points
 from thermo import T_STD
 
 HARTREE_TO_KCAL = 627.5095
@@ -304,7 +307,7 @@ class RouteValidator(dspy.Module):
         needs_gfn2 = [c for c in self.criteria if c in GFN2_ONLY]
         if needs_gfn2 and self.config.backend not in ("gfn2", "dxtb"):
             raise ValueError(f"criterion {needs_gfn2} needs backend 'gfn2' or 'dxtb'; ORCA free energies and enthalpies are not implemented")
-        self.lm = dspy.LM(self.config.model, max_tokens=self.config.max_tokens)
+        self.lm = make_lm(self.config.model, self.config.model_type, self.config.max_tokens)
         self.agent = dspy.ReAct(
             ValidateRoute,
             tools=[self.check_step, self.molecule_energy, self.step_energy],
@@ -337,6 +340,58 @@ class RouteValidator(dspy.Module):
             pred = self.agent(path=describe_path(steps))
         # The LLM can only reject a route that passed the energy check, never approve one that failed it.
         return ValidationResult(_as_bool(pred.valid), pred.rationale, steps, favourable=True)
+
+    def evaluate_candidates(self, reactants, candidates, donor, use_llm=True):
+        """Competing reactions of one reactant pair: one dict per candidate with name, product, dG, Ea (barrier
+        from a restrained scan), ts_distance, at_end, valid and fraction (Boltzmann share from the barriers).
+        `candidates` is [{"name", "site", "product"}]; `donor` is the element that gives the transferred proton."""
+        mol, _, _ = combined_geometry(reactants)
+        donor_index = next(a.GetIdx() for a in mol.GetAtoms() if a.GetSymbol() == donor)
+        proton = hydrogen_on(mol, donor_index)
+        reactant_smiles = [canonical(s) for s in reactants.split(".")]
+
+        results = []
+        for cand in candidates:
+            product = canonical(cand["product"])
+            if use_llm:
+                route = TreeNode(product, 1.0, [TreeNode(s) for s in reactant_smiles])
+                verdict = self(route)
+                step = verdict.steps[0]
+                dg, valid = step.deltas.get("dG"), verdict.valid
+            else:
+                step_reactants = {s: reactant_smiles.count(s) for s in set(reactant_smiles)}
+                dg = self.step_delta_g(product, step_reactants)
+                valid = dg < 0
+            scan = scan_barrier(self.energies, reactants, (cand["site"], proton))
+            results.append({
+                "name": cand["name"],
+                "product": product,
+                "dG": dg,
+                "Ea": scan["ea"],
+                "ts_distance": scan["ts_distance"],
+                "at_end": scan["at_end"],
+                "valid": valid,
+            })
+
+        fractions = boltzmann_fractions([r["Ea"] for r in results])
+        for r, frac in zip(results, fractions):
+            r["fraction"] = frac
+        return results
+
+    def validate_row(self, row, use_llm=True):
+        """Verdict for one dataset row, reactant1 + reactant2 -> Polymer_smiles, per repeat unit.
+        Returns gate_ok, gate_message, deltas, note, valid and rationale. Without the LLM the gate is not run,
+        so gate_ok and rationale are None, and valid means every configured change is below zero."""
+        counts = row_reactants(row)
+        route = TreeNode(canonical(row["Polymer_smiles"]), 1.0, [TreeNode(s) for s in counts for _ in range(counts[s])])
+        if use_llm:
+            verdict = self(route)
+            step = verdict.steps[0]
+            return {"gate_ok": step.gate_ok, "gate_message": step.message, "deltas": step.deltas,
+                    "note": step.note, "valid": verdict.valid, "rationale": verdict.rationale}
+        deltas = self.step_deltas(route.smiles, counts)
+        valid = all(v < 0 for v in deltas.values())
+        return {"gate_ok": None, "gate_message": None, "deltas": deltas, "note": "", "valid": valid, "rationale": None}
 
     def step_deltas(self, product, reactants):
         """The changes the validator checks, per the configured criteria: {label: kcal/mol}."""
