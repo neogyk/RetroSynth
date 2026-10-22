@@ -79,5 +79,19 @@ max_tokens = 8000
 max_iters = 20
 ```
 
+#### Team:
+Name: Ravi Mohan
+
+Email:ravimohan19@gmail.com
+
+Name: Rayan Alhashim
+
+Email: rayanalhashim@gmail.com
+
+Name: Gautam Bordia
+Affiliation: Sandia National Laboratories
+
+Email: gautam.bordia@gmail.com 
+
 
 
