@@ -24,6 +24,7 @@ from rdkit import Chem
 from rdkit.Chem import AllChem
 
 from config import ValidatorConfig
+from dxtb_backend import DxtbError, DxtbRunner
 from gfn2 import Gfn2Error, Gfn2Runner
 from molecules import end_points
 from thermo import T_STD
@@ -53,7 +54,7 @@ class OrcaError(RuntimeError):
     pass
 
 
-ENERGY_ERRORS = (OrcaError, Gfn2Error, ValueError)  # what a failed energy calculation raises
+ENERGY_ERRORS = (OrcaError, Gfn2Error, DxtbError, ValueError)  # what a failed energy calculation raises
 
 
 @dataclass
@@ -290,17 +291,19 @@ class RouteValidator(dspy.Module):
         self.config = config or ValidatorConfig()
         if self.config.backend == "gfn2":
             self.energies = Gfn2Runner()
+        elif self.config.backend == "dxtb":
+            self.energies = DxtbRunner(self.config.dxtb_method)
         elif self.config.backend == "orca":
             self.energies = OrcaRunner(self.config)
         else:
-            raise ValueError(f"unknown validator backend {self.config.backend!r}; use 'gfn2' or 'orca'")
+            raise ValueError(f"unknown validator backend {self.config.backend!r}; use 'gfn2', 'dxtb' or 'orca'")
         self.criteria = [c.strip() for c in self.config.criterion.split(",") if c.strip()]
         unknown = [c for c in self.criteria if c not in CRITERIA]
         if unknown or not self.criteria:
             raise ValueError(f"unknown criterion {self.config.criterion!r}; use one or more of {sorted(CRITERIA)}")
         needs_gfn2 = [c for c in self.criteria if c in GFN2_ONLY]
-        if needs_gfn2 and self.config.backend != "gfn2":
-            raise ValueError(f"criterion {needs_gfn2} needs backend 'gfn2'; ORCA free energies and enthalpies are not implemented")
+        if needs_gfn2 and self.config.backend not in ("gfn2", "dxtb"):
+            raise ValueError(f"criterion {needs_gfn2} needs backend 'gfn2' or 'dxtb'; ORCA free energies and enthalpies are not implemented")
         self.lm = dspy.LM(self.config.model, max_tokens=self.config.max_tokens)
         self.agent = dspy.ReAct(
             ValidateRoute,

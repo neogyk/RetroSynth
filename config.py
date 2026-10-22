@@ -45,8 +45,9 @@ class ValidatorConfig:
     """Agent 5: route validator. An LLM calls tools (repeat-unit check, mass balance, energies)."""
 
     enabled: bool = False  # runs the thermodynamic check on every route when True
-    backend: str = "gfn2"  # energy source: "gfn2" (GFN2-xTB via tblite) or "orca"
-    criterion: str = "dg, dh"  # every listed change must be < 0: "dg", "dh" (both need gfn2), "de"
+    backend: str = "gfn2"  # energy source: "gfn2" (GFN2-xTB via tblite), "dxtb" (PyTorch GFN) or "orca"
+    dxtb_method: str = "GFN2"  # used only when backend = dxtb: "GFN2" (needs libcint) or "GFN1" (no libcint)
+    criterion: str = "dg, dh"  # every listed change must be < 0: "dg", "dh" (gfn2 or dxtb only), "de"
     model: str = "mistral/open-mistral-nemo"  # reads MISTRAL_API_KEY from .env
     max_tokens: int = 4000
     max_iters: int = 6  # tool-calling steps before the agent must answer
