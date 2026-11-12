@@ -154,14 +154,17 @@ def test_route_review_calls_tool_and_returns_verdict(tmp_path, monkeypatch):
     validator.lm = dspy.utils.DummyLM([
         {
             "next_thought": "Check the acetylation step with the gate.",
-            "next_tool_name": "check_step",
-            "next_tool_args": {"product": canonical(ASPIRIN), "reactants": f"{ACETIC_ANHYDRIDE}, {SALICYLIC_ACID}"},
+            "tool_calls": {"tool_calls": [{
+                "name": "check_step",
+                "args": {"product": canonical(ASPIRIN), "reactants": f"{ACETIC_ANHYDRIDE}, {SALICYLIC_ACID}"},
+            }]},
         },
-        {"next_thought": "The gate passes, so I can give a verdict.", "next_tool_name": "finish", "next_tool_args": {}},
         {
-            "reasoning": "One step, gate ok, acetic acid by-product.",
-            "valid": True,
-            "rationale": "Acetylation of salicylic acid with acetic anhydride is balanced.",
+            "next_thought": "The gate passes, so I can give a verdict.",
+            "tool_calls": {"tool_calls": [{"name": "submit", "args": {
+                "valid": True,
+                "rationale": "Acetylation of salicylic acid with acetic anhydride is balanced.",
+            }}]},
         },
     ])
     result = validator(aspirin_route())
@@ -200,8 +203,8 @@ def dehydrogenation_route():
 def test_exothermic_route_is_approved_when_llm_agrees(tmp_path):
     validator = RouteValidator(ValidatorConfig(workdir=str(tmp_path)))
     validator.lm = dspy.utils.DummyLM([
-        {"next_thought": "Energies favour the step.", "next_tool_name": "finish", "next_tool_args": {}},
-        {"reasoning": "Hydrogenation is exothermic.", "valid": True, "rationale": "Exothermic hydrogenation."},
+        {"next_thought": "Energies favour the step.", "tool_calls": {"tool_calls": [
+            {"name": "submit", "args": {"valid": True, "rationale": "Exothermic hydrogenation."}}]}},
     ])
     result = validator(hydrogenation_route())
     assert result.favourable is True
@@ -214,8 +217,8 @@ def test_exothermic_route_is_approved_when_llm_agrees(tmp_path):
 def test_llm_can_reject_a_route_that_passed_the_energy_check(tmp_path):
     validator = RouteValidator(ValidatorConfig(workdir=str(tmp_path)))
     validator.lm = dspy.utils.DummyLM([
-        {"next_thought": "Looks fine.", "next_tool_name": "finish", "next_tool_args": {}},
-        {"reasoning": "The reagent is impractical.", "valid": False, "rationale": "Hydrogen gas is impractical here."},
+        {"next_thought": "Looks fine.", "tool_calls": {"tool_calls": [
+            {"name": "submit", "args": {"valid": False, "rationale": "Hydrogen gas is impractical here."}}]}},
     ])
     result = validator(hydrogenation_route())
     assert result.favourable is True

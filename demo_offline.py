@@ -36,12 +36,12 @@ STOCK = {canonical(s) for s in ("C=C", "C=CC#N", "C=Cc1ccccc1")}  # ethylene, ac
 
 def think(thought, tool, **args):
     """One scripted ReAct round: Claude's thought and the tool it calls."""
-    return {"next_thought": thought, "next_tool_name": tool, "next_tool_args": args}
+    return {"next_thought": thought, "tool_calls": {"tool_calls": [{"name": tool, "args": args}]}}
 
 
-def answer(steps, rationale):
-    """Claude's final answer, after it calls finish."""
-    return {"reasoning": rationale, "steps": steps, "rationale": rationale}
+def answer(thought, steps, rationale):
+    """Claude's final round: it calls submit with the steps and the rationale."""
+    return think(thought, "submit", steps=steps, rationale=rationale)
 
 
 SCENARIOS = {
@@ -52,8 +52,8 @@ SCENARIOS = {
             think("Polyethylene is made by addition polymerisation of ethylene. Validate that step.",
                   "validate_step", product=PE, reactants="C=C"),
             think("The step passed. Check that ethylene is purchasable.", "in_stock", smiles="C=C"),
-            think("Ethylene is in stock and the only step passed, so the route is complete.", "finish"),
-            answer(["C=C>>[*]CC[*]"], "Addition polymerisation of ethylene; the step passed the gate and the energy check."),
+            answer("Ethylene is in stock and the only step passed, so the route is complete.",
+                   ["C=C>>[*]CC[*]"], "Addition polymerisation of ethylene; the step passed the gate and the energy check."),
         ],
     },
     2: {
@@ -66,16 +66,16 @@ SCENARIOS = {
                   "Acrylonitrile, C=CC#N, supplies both. Validate that instead.",
                   "validate_step", product=PAN, reactants="C=CC#N"),
             think("Acrylonitrile passes. Check that it is purchasable.", "in_stock", smiles="C=CC#N"),
-            think("Acrylonitrile is in stock and the step passed.", "finish"),
-            answer(["C=CC#N>>[*]CC([*])C#N"], "Ethylene lacks the nitrile nitrogen; acrylonitrile supplies it and the step passed."),
+            answer("Acrylonitrile is in stock and the step passed.",
+                   ["C=CC#N>>[*]CC([*])C#N"], "Ethylene lacks the nitrile nitrogen; acrylonitrile supplies it and the step passed."),
         ],
     },
     3: {
         "title": "Polyacrylonitrile: Claude claims a wrong route, the re-check rejects it",
         "target": PAN,
         "script": [
-            think("I am confident ethylene works here; no need to validate.", "finish"),
-            answer(["C=C>>[*]CC([*])C#N"], "Ethylene polymerises to the target."),
+            answer("I am confident ethylene works here; no need to validate.",
+                   ["C=C>>[*]CC([*])C#N"], "Ethylene polymerises to the target."),
         ],
     },
 }
@@ -91,7 +91,7 @@ def run(number, config):
     printer = ProgressPrinter()
     orch = RetroOrchestrator(STOCK, config, progress=printer)
     orch.lm = dspy.utils.DummyLM(scenario["script"])
-    printer.header(scenario["target"], replace(config, orchestrator=replace(config.orchestrator, model="scripted")))
+    printer.header(scenario["target"], replace(config, orchestrator=replace(config.orchestrator, model="scripted", model_type="api")))
     result = orch(scenario["target"])
     print()
     print(f"Result: valid={result.valid}")

@@ -177,8 +177,8 @@ def test_polymer_route_is_valid_through_the_pipeline(tmp_path):
     fake = {canonical("CC"): -79.17, canonical("[H][H]"): -1.17, canonical("C=C"): -77.97}  # E(RU) = -78.00, so dE < 0
     pipeline.validator.energies.energy = lambda smi: fake[canonical(smi)]
     pipeline.validator.lm = dspy.utils.DummyLM([
-        {"next_thought": "Exothermic addition polymerisation.", "next_tool_name": "finish", "next_tool_args": {}},
-        {"reasoning": "Balanced, dE < 0.", "valid": True, "rationale": "Ethylene polymerisation."},
+        {"next_thought": "Exothermic addition polymerisation.", "tool_calls": {"tool_calls": [
+            {"name": "submit", "args": {"valid": True, "rationale": "Ethylene polymerisation."}}]}},
     ])
     result = pipeline("", pe)
     assert [r.valid for r in result.routes] == [True]

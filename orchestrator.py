@@ -32,7 +32,7 @@ from rich.table import Table
 from rich.text import Text
 
 from config import DEFAULT_CONFIG_PATH, Config, load_config
-from lm import make_lm
+from lm import SUBSCRIPTION, make_lm
 from molecules import TreeNode, canonical, load_stock
 from ranker import RouteRanker
 from renderer import RouteRenderer
@@ -79,7 +79,7 @@ class OrchestratorResult:
     steps: list = field(default_factory=list)  # StepCheck, in forward order (starting materials first)
     issues: list = field(default_factory=list)  # why the route is not valid
     root: TreeNode | None = None  # the route as a tree, as the search agent would return it
-    trajectory: dict = field(default_factory=dict)  # Claude's thoughts and tool calls
+    trajectory: list = field(default_factory=list)  # one dict per turn: Claude's thought and tool calls with results
 
 
 def parse_reaction(text):
@@ -119,10 +119,10 @@ class ProgressCallback(BaseCallback):
 
     `report(event, data)` is called with:
       "thinking"     {"iteration"}                              Claude is choosing its next action
-      "thought"      {"iteration", "thought", "tool", "args"}   Claude's reasoning and the tool it chose
+      "thought"      {"iteration", "thought", "calls"}          Claude's reasoning and the tools it chose, [(name, args)]
       "tool_start"   {"iteration", "tool", "args"}              a tool started
       "tool_end"     {"iteration", "tool", "result", "seconds"} a tool finished
-      "answering"    {}                                         Claude is writing the final answer
+      "answering"    {}                                         Claude submits its final answer
     """
 
     def __init__(self, agent, report):
@@ -136,21 +136,21 @@ class ProgressCallback(BaseCallback):
             self.iteration += 1
             self._calls[call_id] = "react"
             self.report("thinking", {"iteration": self.iteration})
-        elif instance is self.agent.extract:
-            self.report("answering", {})
 
     def on_module_end(self, call_id, outputs, exception=None):
         if self._calls.pop(call_id, None) == "react" and outputs is not None:
+            tool_calls = getattr(outputs, "tool_calls", None)
             self.report("thought", {
                 "iteration": self.iteration,
-                "thought": outputs.next_thought,
-                "tool": outputs.next_tool_name,
-                "args": outputs.next_tool_args,
+                "thought": getattr(outputs, "next_thought", ""),
+                "calls": [(c.name, c.args) for c in tool_calls.tool_calls] if tool_calls else [],
             })
 
     def on_tool_start(self, call_id, instance, inputs):
         name = getattr(instance, "name", str(instance))
         self._calls[call_id] = (name, time.monotonic())
+        if name == "submit":
+            self.report("answering", {})
         self.report("tool_start", {"iteration": self.iteration, "tool": name, "args": inputs})
 
     def on_tool_end(self, call_id, outputs, exception=None):
@@ -189,7 +189,7 @@ class RetroOrchestrator(dspy.Module):
         steps = pred.steps if isinstance(pred.steps, list) else str(pred.steps).splitlines()
         result = self.check(target, [s for s in steps if s.strip()])
         result.rationale = pred.rationale
-        result.trajectory = dict(pred.trajectory)
+        result.trajectory = list(pred.history.messages)
         return result
 
     def check(self, target, steps):
@@ -294,8 +294,9 @@ class ProgressPrinter:
 
     def header(self, target, config):
         criteria = ", ".join(c.strip() for c in config.validator.criterion.split(","))
+        model = "claude CLI (subscription)" if config.orchestrator.model_type == SUBSCRIPTION else config.orchestrator.model
         body = Text.assemble(("Target  ", "bold"), (target, "bold"), "\n",
-                             f"Claude  {config.orchestrator.model}  |  energies  {config.validator.backend} ({criteria})"
+                             f"Claude  {model}  |  energies  {config.validator.backend} ({criteria})"
                              f"  |  up to {config.orchestrator.max_iters} tool calls")
         self.console.print(Panel(body, title=Text("Retrosynthesis", style="bold"), title_align="left",
                                  border_style="blue"))
@@ -308,15 +309,14 @@ class ProgressPrinter:
         elif event == "thought":
             self.console.print(Panel(Text.assemble(("Thought: ", "bold cyan"), str(data["thought"])),
                                      border_style="cyan"))
-            if data["tool"] != "finish":
-                self.console.print(Text.assemble(("Next: ", "bold"), f"{data['tool']}({format_args(data['args'])})"))
+            for tool, args in data["calls"]:
+                if tool != "submit":
+                    self.console.print(Text.assemble(("Next: ", "bold"), f"{tool}({format_args(args)})"))
         elif event == "tool_start":
-            if data["tool"] == "finish":
-                self.console.print(Text.assemble(clock, ("  Claude is done with the tools.", "bold")))
-            else:
+            if data["tool"] != "submit":
                 busy = " (gate, then energies; this can take a while)" if data["tool"] == "validate_step" else ""
                 self.console.print(Text.assemble(clock, "  -> ", (data["tool"], "bold"), busy))
-        elif event == "tool_end" and data["tool"] != "finish":
+        elif event == "tool_end" and data["tool"] != "submit":
             result = str(data["result"])
             body = f"<- {result}  ({data['seconds']:.1f} s)"
             self.console.print(verifier_box(data["tool"], body, result))

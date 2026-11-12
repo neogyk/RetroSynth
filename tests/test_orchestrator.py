@@ -95,14 +95,16 @@ def test_in_stock_tool():
 
 # --- Claude's loop (scripted LLM) -----------------------------------------------------
 
+def turn(thought, tool, **args):
+    return {"next_thought": thought, "tool_calls": {"tool_calls": [{"name": tool, "args": args}]}}
+
+
 def scripted(steps):
     return dspy.utils.DummyLM([
-        {"next_thought": "Ethylene polymerises to PE; validate the step.", "next_tool_name": "validate_step",
-         "next_tool_args": {"product": PE_RU, "reactants": "C=C"}},
-        {"next_thought": "Check the monomer is purchasable.", "next_tool_name": "in_stock",
-         "next_tool_args": {"smiles": "C=C"}},
-        {"next_thought": "The step passed and ethylene is in stock.", "next_tool_name": "finish", "next_tool_args": {}},
-        {"reasoning": "One addition step.", "steps": steps, "rationale": "Ethylene addition polymerisation, dE < 0."},
+        turn("Ethylene polymerises to PE; validate the step.", "validate_step", product=PE_RU, reactants="C=C"),
+        turn("Check the monomer is purchasable.", "in_stock", smiles="C=C"),
+        turn("The step passed and ethylene is in stock.", "submit",
+             steps=steps, rationale="Ethylene addition polymerisation, dE < 0."),
     ])
 
 
@@ -111,8 +113,9 @@ def test_orchestrator_runs_tools_and_returns_a_valid_route():
     orch.lm = scripted(["C=C>>[*]CC[*]"])
     result = orch(PE_RU)
     assert result.valid, result.issues
-    assert result.trajectory["tool_name_0"] == "validate_step"
-    assert result.trajectory["observation_0"].startswith("PASS")
+    first = result.trajectory[0]["tool_calls"]
+    assert first.tool_calls[0].name == "validate_step"
+    assert first.tool_call_results.tool_call_results[0].value.startswith("PASS")
     assert "polymerisation" in result.rationale
 
 
@@ -148,13 +151,13 @@ def test_progress_reports_each_iteration_in_order():
     assert names[-3:] == ["recheck_start", "recheck_step", "recheck_done"]
     assert "answering" in names
     thought = next(d for e, d in events if e == "thought")
-    assert thought["iteration"] == 1 and thought["tool"] == "validate_step"
-    assert thought["args"] == {"product": PE_RU, "reactants": "C=C"}
+    assert thought["iteration"] == 1
+    assert thought["calls"] == [("validate_step", {"product": PE_RU, "reactants": "C=C"})]
 
 
 def test_progress_tool_end_carries_the_result_and_time():
     _, events = run_with_progress(["C=C>>[*]CC[*]"])
-    ends = [d for e, d in events if e == "tool_end" and d["tool"] != "finish"]
+    ends = [d for e, d in events if e == "tool_end" and d["tool"] != "submit"]
     assert [d["tool"] for d in ends] == ["validate_step", "in_stock"]
     assert ends[0]["result"].startswith("PASS")
     assert all(d["seconds"] >= 0 for d in ends)

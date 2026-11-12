@@ -1,0 +1,25 @@
+# Install everything with ./install.sh, or the Python packages alone with: pip install -r requirements.txt
+
+py4vasp
+
+# Core
+dspy>=3.5      # lm.py uses the 3.5 engine API (custom LMs pass engine=)
+rdkit
+numpy
+scipy
+pandas
+pillow
+rich
+python-dotenv
+
+# Quantum chemistry backends
+tblite      # GFN2-xTB (gfn2.py); if pip fails: conda install -c conda-forge tblite-python
+torch       # required by dxtb
+dxtb        # differentiable xTB (dxtb_backend.py, validator.py)
+
+# Testing
+pytest
+
+# Not installable with pip (install.sh handles or checks these):
+# - claude CLI    model_type = subscription in config.ini (lm.py); npm install -g @anthropic-ai/claude-code
+# - ORCA          optional QC backend (validator.py); manual download from https://orcaforum.kofo.mpg.de
