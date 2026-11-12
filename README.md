@@ -1,7 +1,12 @@
 #### Polymer Retrosynthesis:
 Polymer retrosynthesis is challenging because it requires selecting the most realistic pathway among many possibilities, yet few tools can propose diverse pathways.  This tool is tailored specifically for polymers and aims to address both problems. We present a lightweight implementation that is compatible with a laptop setup and doesn't require powerful hardware.
 
-
+### Installation of env:
+```python
+python -m venv retro
+source .retro/bin/activate
+pip install -r requirements.txt
+```
 
 ### Script Execution:
 ```python
