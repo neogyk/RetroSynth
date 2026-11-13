@@ -1,0 +1,9 @@
+# dxtb (dxtb_backend.py, validator.py). Install with: pip install --no-deps -r requirements-dxtb.txt
+# The tad-* packages declare numpy<2, which has no wheels for Python >= 3.13, so pip cannot resolve them.
+# They run fine on numpy 2, so they are installed without dependency resolution; their own dependencies
+# are listed in requirements.txt. The versions are pinned because --no-deps skips the compatibility check.
+dxtb==0.4.0
+tad-mctc==0.7.0
+tad-dftd3==0.6.0
+tad-dftd4==0.8.0
+tad-multicharge==0.5.0

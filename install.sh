@@ -28,6 +28,21 @@ if ! "$PY" -m pip install -r requirements.txt; then
     fi
 fi
 
+echo "==> dxtb (without dependency resolution, see requirements-dxtb.txt)"
+"$PY" -m pip install --no-deps -r requirements-dxtb.txt
+
+echo "==> Import check"
+"$PY" - <<'EOF'
+import importlib
+missing = []
+for module in ["dspy", "rdkit", "numpy", "scipy", "pandas", "PIL", "rich", "dotenv", "tblite", "torch", "dxtb", "pytest"]:
+    try:
+        importlib.import_module(module)
+    except Exception as error:
+        missing.append(f"{module} ({error})")
+print("   all modules import" if not missing else "!! failed imports: " + ", ".join(missing))
+EOF
+
 echo "==> claude CLI (needed for model_type = subscription)"
 if command -v claude >/dev/null 2>&1; then
     echo "   found: $(command -v claude)"

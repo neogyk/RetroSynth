@@ -1,6 +1,5 @@
-# Install everything with ./install.sh, or the Python packages alone with: pip install -r requirements.txt
-
-py4vasp
+# Install everything with ./install.sh, or by hand with:
+#   pip install -r requirements.txt && pip install --no-deps -r requirements-dxtb.txt
 
 # Core
 dspy>=3.5      # lm.py uses the 3.5 engine API (custom LMs pass engine=)
@@ -14,8 +13,15 @@ python-dotenv
 
 # Quantum chemistry backends
 tblite      # GFN2-xTB (gfn2.py); if pip fails: conda install -c conda-forge tblite-python
-torch       # required by dxtb
-dxtb        # differentiable xTB (dxtb_backend.py, validator.py)
+torch       # required by dxtb; CPU-only build: --index-url https://download.pytorch.org/whl/cpu
+# Runtime dependencies of dxtb and its tad-* packages, which requirements-dxtb.txt installs with --no-deps
+h5py
+opt-einsum
+psutil
+pydantic
+tomli
+tomli-w
+typing-extensions
 
 # Testing
 pytest
